@@ -1,4 +1,4 @@
-// src/weather/schemas/weather.schema.ts
+// src/weather/schemas/weather.schemas.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 

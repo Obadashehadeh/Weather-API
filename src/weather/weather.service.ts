@@ -1,72 +1,187 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Weather, WeatherDocument } from './schemas/weather.schema';
+import { HttpService } from '@nestjs/axios';
 import {
-  SearchHistory,
-  SearchHistoryDocument,
-} from './schemas/search-history.schema';
-import { CreateWeatherDto } from './dto/create-weather.dto';
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { lastValueFrom } from 'rxjs';
+import { ForecastItem, ForecastResponseDto } from './dto/forecast-response.dto';
+import { WeatherResponseDto } from './dto/weather-response.dto';
 
 @Injectable()
 export class WeatherService {
+  private readonly apiKey: string;
+  private readonly baseUrl: string;
+
   constructor(
-    @InjectModel(Weather.name) private weatherModel: Model<WeatherDocument>,
-    @InjectModel(SearchHistory.name)
-    private searchHistoryModel: Model<SearchHistoryDocument>,
-  ) {}
-
-  async create(createWeatherDto: CreateWeatherDto): Promise<Weather> {
-    const newWeather = new this.weatherModel(createWeatherDto);
-    return await newWeather.save();
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+  ) {
+    this.apiKey = this.configService.get<string>('WEATHER_API_KEY') || '';
+    this.baseUrl = 'https://api.openweathermap.org/data/2.5';
   }
 
-  async findAll(): Promise<Weather[]> {
-    return await this.weatherModel.find().exec();
+  async getCurrentWeather(location: string): Promise<WeatherResponseDto> {
+    try {
+      // Use either real API or mock data based on environment configuration
+      if (this.configService.get<string>('USE_MOCK_DATA') === 'true') {
+        return this.getMockCurrentWeather(location);
+      }
+
+      const response = await lastValueFrom(
+        this.httpService.get<WeatherResponseDto>(
+          `${this.baseUrl}/weather?q=${location}&units=metric&appid=${this.apiKey}`,
+        ),
+      );
+
+      return response.data;
+    } catch (error: any) {
+      if (error.response && error.response.status === 404) {
+        throw new BadRequestException(`Location '${location}' not found`);
+      }
+      throw new InternalServerErrorException(
+        'Failed to fetch weather data. Please try again later.',
+      );
+    }
+  }
+  async getForecast(location: string): Promise<ForecastResponseDto> {
+    try {
+      // Use either real API or mock data based on environment configuration
+      if (this.configService.get<string>('USE_MOCK_DATA') === 'true') {
+        return this.getMockForecast(location);
+      }
+
+      const response = await lastValueFrom(
+        this.httpService.get<ForecastResponseDto>(
+          `${this.baseUrl}/forecast?q=${location}&units=metric&appid=${this.apiKey}`,
+        ),
+      );
+
+      return response.data;
+    } catch (error: any) {
+      if (error.response && error.response.status === 404) {
+        throw new BadRequestException(`Location '${location}' not found`);
+      }
+      throw new InternalServerErrorException(
+        'Failed to fetch forecast data. Please try again later.',
+      );
+    }
   }
 
-  async findByCity(city: string): Promise<Weather | null> {
-    return await this.weatherModel
-      .findOne({ city })
-      .sort({ createdAt: -1 })
-      .exec();
-  }
-
-  async update(
-    id: string,
-    updateWeatherDto: CreateWeatherDto,
-  ): Promise<Weather> {
-    const updatedWeather = await this.weatherModel
-      .findByIdAndUpdate(id, updateWeatherDto, { new: true })
-      .exec();
-
-    if (!updatedWeather) {
-      throw new NotFoundException(`Weather record with ID ${id} not found`);
+  // Mock data methods for development and testing
+  private getMockCurrentWeather(location: string): WeatherResponseDto {
+    // Simple validation for mock data
+    if (!location || location.trim() === '') {
+      throw new BadRequestException('Location is required');
     }
 
-    return updatedWeather;
+    return {
+      coord: { lon: 35.9283, lat: 31.9454 },
+      weather: [
+        {
+          id: 800,
+          main: 'Clear',
+          description: 'clear sky',
+          icon: '01d',
+        },
+      ],
+      base: 'stations',
+      main: {
+        temp: 25.5,
+        feels_like: 24.8,
+        temp_min: 23.1,
+        temp_max: 26.3,
+        pressure: 1013,
+        humidity: 50,
+      },
+      visibility: 10000,
+      wind: {
+        speed: 3.5,
+        deg: 120,
+      },
+      clouds: {
+        all: 0,
+      },
+      dt: 1620222000,
+      sys: {
+        country: 'JO',
+        sunrise: 1620185000,
+        sunset: 1620232800,
+      },
+      timezone: 3600,
+      id: 250441,
+      name: location,
+      cod: 200,
+    };
   }
 
-  async remove(id: string): Promise<Weather> {
-    const deletedWeather = await this.weatherModel.findByIdAndDelete(id).exec();
-
-    if (!deletedWeather) {
-      throw new NotFoundException(`Weather record with ID ${id} not found`);
+  private getMockForecast(location: string): ForecastResponseDto {
+    // Simple validation for mock data
+    if (!location || location.trim() === '') {
+      throw new BadRequestException('Location is required');
     }
 
-    return deletedWeather;
-  }
+    // Generate forecast items for every 3 hours over next 5 days (40 items)
+    const forecastItems: ForecastItem[] = [];
+    const now = new Date();
+    for (let i = 0; i < 40; i++) {
+      const forecastTime = new Date(now.getTime() + i * 3 * 60 * 60 * 1000);
 
-  async addToSearchHistory(city: string): Promise<SearchHistory> {
-    const searchHistory = new this.searchHistoryModel({ city });
-    return await searchHistory.save();
-  }
+      const item: ForecastItem = {
+        dt: Math.floor(forecastTime.getTime() / 1000),
+        main: {
+          temp: 22 + Math.random() * 10,
+          feels_like: 20 + Math.random() * 10,
+          temp_min: 20 + Math.random() * 5,
+          temp_max: 25 + Math.random() * 5,
+          pressure: 1010 + Math.random() * 10,
+          humidity: 40 + Math.random() * 30,
+        },
+        weather: [
+          {
+            id: 800,
+            main: 'Clear',
+            description: 'clear sky',
+            icon: '01d',
+          },
+        ],
+        clouds: {
+          all: Math.floor(Math.random() * 30),
+        },
+        wind: {
+          speed: 2 + Math.random() * 5,
+          deg: Math.floor(Math.random() * 360),
+        },
+        visibility: 10000,
+        pop: Math.random() * 0.5,
+        sys: {
+          pod: forecastTime.getHours() >= 6 && forecastTime.getHours() < 18 ? 'd' : 'n',
+        },
+        dt_txt: forecastTime.toISOString().replace('T', ' ').substring(0, 19),
+      };
 
-  async getSearchHistory(): Promise<SearchHistory[]> {
-    return await this.searchHistoryModel
-      .find()
-      .sort({ searchedAt: -1 })
-      .limit(10)
-      .exec();
+      forecastItems.push(item);
+    }
+
+    return {
+      cod: '200',
+      message: 0,
+      cnt: 40,
+      list: forecastItems,
+      city: {
+        id: 250441,
+        name: location,
+        coord: {
+          lat: 31.9454,
+          lon: 35.9283,
+        },
+        country: 'JO',
+        population: 1000000,
+        timezone: 3600,
+        sunrise: 1620185000,
+        sunset: 1620232800,
+      },
+    };
   }
 }

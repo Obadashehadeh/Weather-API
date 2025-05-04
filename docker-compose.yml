@@ -5,23 +5,31 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: weather-dashboard-api
     ports:
-      - "3000:3000"
-    environment:
-      - MONGODB_URI=mongodb://mongodb:27017/weatherdb
+      - '3000:3000'
+    env_file:
+      - .env
     depends_on:
       - mongodb
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-    command: npm run start:dev
+    networks:
+      - weather-network
+    restart: unless-stopped
 
   mongodb:
     image: mongo:latest
+    container_name: weather-dashboard-mongodb
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - weather-network
+    restart: unless-stopped
+
+networks:
+  weather-network:
+    driver: bridge
 
 volumes:
   mongodb_data:

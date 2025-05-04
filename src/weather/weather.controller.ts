@@ -1,63 +1,56 @@
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Delete,
-  NotFoundException,
-} from '@nestjs/common';
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ForecastResponseDto } from './dto/forecast-response.dto';
+import { WeatherResponseDto } from './dto/weather-response.dto';
 import { WeatherService } from './weather.service';
-import { CreateWeatherDto } from './dto/create-weather.dto';
-import { Weather } from './schemas/weather.schema';
-import { SearchHistory } from './schemas/search-history.schema';
 
+@ApiTags('weather')
 @Controller('weather')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class WeatherController {
   constructor(private readonly weatherService: WeatherService) {}
 
-  @Post()
-  async create(@Body() createWeatherDto: CreateWeatherDto): Promise<Weather> {
-    return this.weatherService.create(createWeatherDto);
-  }
-
   @Get()
-  async findAll(): Promise<Weather[]> {
-    return this.weatherService.findAll();
+  @ApiOperation({ summary: 'Get current weather for a location' })
+  @ApiQuery({
+    name: 'location',
+    required: true,
+    type: String,
+    description: 'Location name (e.g., Amman)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Current weather data',
+    type: WeatherResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid location' })
+  async getCurrentWeather(@Query('location') location: string) {
+    return this.weatherService.getCurrentWeather(location);
   }
 
-  @Get(':city')
-  async findByCity(@Param('city') city: string): Promise<Weather> {
-    const weather = await this.weatherService.findByCity(city);
-    if (!weather) {
-      throw new NotFoundException(`No weather data found for city: ${city}`);
-    }
-    return weather;
-  }
-
-  @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateWeatherDto: CreateWeatherDto,
-  ): Promise<Weather> {
-    return this.weatherService.update(id, updateWeatherDto);
-  }
-
-  @Delete(':id')
-  async remove(@Param('id') id: string): Promise<Weather> {
-    return this.weatherService.remove(id);
-  }
-
-  @Post('history/:city')
-  async addToSearchHistory(
-    @Param('city') city: string,
-  ): Promise<SearchHistory> {
-    return this.weatherService.addToSearchHistory(city);
-  }
-
-  @Get('history')
-  async getSearchHistory(): Promise<SearchHistory[]> {
-    return this.weatherService.getSearchHistory();
+  @Get('forecast')
+  @ApiOperation({ summary: 'Get weather forecast for a location' })
+  @ApiQuery({
+    name: 'location',
+    required: true,
+    type: String,
+    description: 'Location name (e.g., Amman)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Weather forecast data',
+    type: ForecastResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid location' })
+  async getForecast(@Query('location') location: string) {
+    return this.weatherService.getForecast(location);
   }
 }
