@@ -7,11 +7,8 @@ import { HttpExceptionFilter, AllExceptionsFilter } from './common/filters/http-
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
-
-  // Enable CORS
   app.enableCors();
 
-  // Setup global validation pipes
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -20,10 +17,8 @@ async function bootstrap() {
     }),
   );
 
-  // Apply global exception filters
   app.useGlobalFilters(new HttpExceptionFilter(), new AllExceptionsFilter());
 
-  // Setup Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('Weather Dashboard API')
     .setDescription('Weather Dashboard Backend API for ARD Group')
@@ -36,9 +31,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  // Start server
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 5000;
   await app.listen(port);
+  console.log(`Server started on port: ${port}`);
+  console.log(`Server started on port: ${app}`);
+  console.log(`Server started on port: ${app.getUrl()}`);
+
   logger.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

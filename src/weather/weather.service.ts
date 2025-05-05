@@ -117,12 +117,10 @@ export class WeatherService {
   }
 
   private getMockForecast(location: string): ForecastResponseDto {
-    // Simple validation for mock data
     if (!location || location.trim() === '') {
       throw new BadRequestException('Location is required');
     }
 
-    // Generate forecast items for every 3 hours over next 5 days (40 items)
     const forecastItems: ForecastItem[] = [];
     const now = new Date();
     for (let i = 0; i < 40; i++) {
