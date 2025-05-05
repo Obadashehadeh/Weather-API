@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
 import { ForecastResponseDto } from './dto/forecast-response.dto';
 import { WeatherResponseDto } from './dto/weather-response.dto';
+import axios from 'axios';
 
 @Injectable()
 export class WeatherService {
@@ -20,6 +21,44 @@ export class WeatherService {
   ) {
     this.apiKey = this.configService.get<string>('WEATHER_API_KEY') || '';
     this.baseUrl = 'https://api.openweathermap.org/data/2.5';
+  }
+
+  async getCityNameFromCoords(lat: number, lon: number): Promise<string> {
+    try {
+      const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
+        params: {
+          lat,
+          lon,
+          format: 'json',
+        },
+        headers: {
+          'User-Agent': 'weather-dashboard',
+        },
+      });
+
+      const address = response.data.address;
+      const city = address.city || address.town || address.village || address.state;
+
+      return city || 'Unknown';
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to fetch city name.');
+    }
+  }
+
+  async getWeatherAndCityByCoords(lat: number, lon: number) {
+    try {
+      const [weather, city] = await Promise.all([
+        this.getCurrentWeatherByCoords(lat, lon),
+        this.getCityNameFromCoords(lat, lon),
+      ]);
+
+      return {
+        city,
+        ...weather,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to fetch weather and city data.');
+    }
   }
 
   async getCurrentWeatherByCity(location: string): Promise<WeatherResponseDto> {
@@ -48,7 +87,7 @@ export class WeatherService {
   async getCurrentWeatherByCoords(lat: number, lon: number): Promise<WeatherResponseDto> {
     try {
       if (this.configService.get<string>('USE_MOCK_DATA') === 'true') {
-        return this.getMockCurrentWeather(`Location at ${lat}, ${lon}`);
+        return this.getMockCurrentWeather('Amman');
       }
 
       const response = await lastValueFrom(
@@ -67,7 +106,6 @@ export class WeatherService {
 
   async getForecastByCity(location: string): Promise<ForecastResponseDto> {
     try {
-      // Use either real API or mock data based on environment configuration
       if (this.configService.get<string>('USE_MOCK_DATA') === 'true') {
         return this.getMockForecast(location);
       }
@@ -115,7 +153,7 @@ export class WeatherService {
     }
 
     return {
-      coord: { lon: 35.9283, lat: 31.9454,name: 'Amman' },
+      coord: { lon: 35.9283, lat: 31.9454, name: location },
       weather: [
         {
           id: 800,

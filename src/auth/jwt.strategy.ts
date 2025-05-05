@@ -18,10 +18,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    const user = await this.usersService.findById(payload.userId);
-    if (!user) {
+    try {
+      const user = await this.usersService.findById(payload.userId);
+      if (!user) {
+        throw new UnauthorizedException('Invalid token - user not found');
+      }
+      return user;
+    } catch (error) {
+      console.error('JWT validation error:', error.message);
       throw new UnauthorizedException('Invalid token');
     }
-    return user;
   }
 }

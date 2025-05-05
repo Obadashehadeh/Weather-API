@@ -52,7 +52,6 @@ export class LocationsService {
     updateLocationDto: UpdateLocationDto,
     userId: string,
   ): Promise<Location> {
-    // Check if location exists and belongs to user
     await this.findOneByUser(id, userId);
 
     const updatedLocation = await this.locationModel

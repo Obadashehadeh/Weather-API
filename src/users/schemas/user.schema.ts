@@ -17,7 +17,6 @@ export class User {
   @Prop({ required: true })
   password: string;
 
-  // Method to check if password is valid
   async comparePassword(candidatePassword: string): Promise<boolean> {
     return bcrypt.compare(candidatePassword, this.password);
   }
@@ -25,7 +24,6 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-// Middleware to hash the password before saving
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     return next();

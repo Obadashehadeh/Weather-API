@@ -10,7 +10,7 @@ export class AppConfigService {
   }
 
   get port(): number {
-    return parseInt(this.configService.get<string>('PORT') || '5000', 10);
+    return parseInt(this.configService.get<string>('PORT') || '9000', 10);
   }
 
   get mongoUri(): string {

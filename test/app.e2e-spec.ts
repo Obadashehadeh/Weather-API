@@ -33,13 +33,11 @@ describe('AppController (e2e)', () => {
 
     await app.init();
 
-    // Clean up database before tests
     await userModel.deleteMany({});
     await locationModel.deleteMany({});
   });
 
   afterAll(async () => {
-    // Clean up database after tests
     await userModel.deleteMany({});
     await locationModel.deleteMany({});
     await app.close();

@@ -5,24 +5,15 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 async function seed() {
-  console.log('Starting database seed...');
-
-  // Connect to MongoDB
   const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/weather-dashboard';
   const client = new MongoClient(uri);
 
   try {
     await client.connect();
-    console.log('Connected to MongoDB');
-
     const db = client.db();
-
-    // Clean existing data
     await db.collection('users').deleteMany({});
     await db.collection('locations').deleteMany({});
-    console.log('Cleaned existing data');
 
-    // Seed users
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash('password123', salt);
 
@@ -42,9 +33,7 @@ async function seed() {
         updatedAt: new Date(),
       },
     ]);
-    console.log(`Inserted ${usersResult.insertedCount} users`);
 
-    // Seed locations
     const adminUserId = usersResult.insertedIds[0];
     const testUserId = usersResult.insertedIds[1];
 
@@ -77,9 +66,6 @@ async function seed() {
         updatedAt: new Date(),
       },
     ]);
-    console.log(`Inserted ${locationsResult.insertedCount} locations`);
-
-    console.log('Database seed completed successfully');
   } catch (error) {
     console.error('Error seeding database:', error);
   } finally {

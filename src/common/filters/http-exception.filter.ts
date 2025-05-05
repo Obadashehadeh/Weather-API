@@ -30,7 +30,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
           : (errorResponse as any).message || exception.message || 'Internal server error',
     };
 
-    // Log the error
     this.logger.error(
       `${request.method} ${request.url} ${status} - ${JSON.stringify(error)}`,
     );
@@ -61,7 +60,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message: exception.message || 'Internal server error',
     };
 
-    // Log the error
     this.logger.error(
       `${request.method} ${request.url} ${status} - ${exception.stack}`,
       exception.stack,

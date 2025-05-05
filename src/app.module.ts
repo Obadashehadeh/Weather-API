@@ -1,31 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { WeatherModule } from './weather/weather.module';
-import { LocationsModule } from './locations/locations.module';
+import { WeatherController } from './weather/weather.controller';
+import { AuthService } from './auth/auth.service';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
-      }),
-      inject: [ConfigService],
-    }),
-    AuthModule,
-    UsersModule,
-    WeatherModule,
-    LocationsModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [JwtModule.register({ secret: 'secret', signOptions: { expiresIn: '1d' } })],
+  controllers: [WeatherController],
+  providers: [AuthService],
 })
 export class AppModule {}
