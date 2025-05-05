@@ -1,3 +1,4 @@
+// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
@@ -7,7 +8,13 @@ import { HttpExceptionFilter, AllExceptionsFilter } from './common/filters/http-
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+
+  // Enable CORS for frontend
+  app.enableCors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:8080',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -33,10 +40,6 @@ async function bootstrap() {
 
   const port = process.env.PORT || 5000;
   await app.listen(port);
-  console.log(`Server started on port: ${port}`);
-  console.log(`Server started on port: ${app}`);
-  console.log(`Server started on port: ${app.getUrl()}`);
-
   logger.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

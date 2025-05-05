@@ -63,6 +63,7 @@ export class WeatherResponseDto {
   coord: {
     lon: number;
     lat: number;
+    name: string;
   };
 
   @ApiProperty({ type: [WeatherCondition] })

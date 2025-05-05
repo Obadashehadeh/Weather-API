@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
-import { ForecastItem, ForecastResponseDto } from './dto/forecast-response.dto';
+import { ForecastResponseDto } from './dto/forecast-response.dto';
 import { WeatherResponseDto } from './dto/weather-response.dto';
 
 @Injectable()
@@ -22,16 +22,15 @@ export class WeatherService {
     this.baseUrl = 'https://api.openweathermap.org/data/2.5';
   }
 
-  async getCurrentWeather(location: string): Promise<WeatherResponseDto> {
+  async getCurrentWeatherByCity(location: string): Promise<WeatherResponseDto> {
     try {
-      // Use either real API or mock data based on environment configuration
       if (this.configService.get<string>('USE_MOCK_DATA') === 'true') {
         return this.getMockCurrentWeather(location);
       }
 
       const response = await lastValueFrom(
         this.httpService.get<WeatherResponseDto>(
-          `${this.baseUrl}/weather?q=${location}&units=metric&appid=${this.apiKey}`,
+          `${this.baseUrl}/weather?q=${encodeURIComponent(location)}&units=metric&appid=${this.apiKey}`,
         ),
       );
 
@@ -45,7 +44,28 @@ export class WeatherService {
       );
     }
   }
-  async getForecast(location: string): Promise<ForecastResponseDto> {
+
+  async getCurrentWeatherByCoords(lat: number, lon: number): Promise<WeatherResponseDto> {
+    try {
+      if (this.configService.get<string>('USE_MOCK_DATA') === 'true') {
+        return this.getMockCurrentWeather(`Location at ${lat}, ${lon}`);
+      }
+
+      const response = await lastValueFrom(
+        this.httpService.get<WeatherResponseDto>(
+          `${this.baseUrl}/weather?lat=${lat}&lon=${lon}&units=metric&appid=${this.apiKey}`,
+        ),
+      );
+
+      return response.data;
+    } catch (error: any) {
+      throw new InternalServerErrorException(
+        'Failed to fetch weather data. Please try again later.',
+      );
+    }
+  }
+
+  async getForecastByCity(location: string): Promise<ForecastResponseDto> {
     try {
       // Use either real API or mock data based on environment configuration
       if (this.configService.get<string>('USE_MOCK_DATA') === 'true') {
@@ -54,7 +74,7 @@ export class WeatherService {
 
       const response = await lastValueFrom(
         this.httpService.get<ForecastResponseDto>(
-          `${this.baseUrl}/forecast?q=${location}&units=metric&appid=${this.apiKey}`,
+          `${this.baseUrl}/forecast?q=${encodeURIComponent(location)}&units=metric&appid=${this.apiKey}`,
         ),
       );
 
@@ -69,15 +89,33 @@ export class WeatherService {
     }
   }
 
-  // Mock data methods for development and testing
+  async getForecastByCoords(lat: number, lon: number): Promise<ForecastResponseDto> {
+    try {
+      if (this.configService.get<string>('USE_MOCK_DATA') === 'true') {
+        return this.getMockForecast(`Location at ${lat}, ${lon}`);
+      }
+
+      const response = await lastValueFrom(
+        this.httpService.get<ForecastResponseDto>(
+          `${this.baseUrl}/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${this.apiKey}`,
+        ),
+      );
+
+      return response.data;
+    } catch (error: any) {
+      throw new InternalServerErrorException(
+        'Failed to fetch forecast data. Please try again later.',
+      );
+    }
+  }
+
   private getMockCurrentWeather(location: string): WeatherResponseDto {
-    // Simple validation for mock data
     if (!location || location.trim() === '') {
       throw new BadRequestException('Location is required');
     }
 
     return {
-      coord: { lon: 35.9283, lat: 31.9454 },
+      coord: { lon: 35.9283, lat: 31.9454,name: 'Amman' },
       weather: [
         {
           id: 800,
@@ -121,12 +159,12 @@ export class WeatherService {
       throw new BadRequestException('Location is required');
     }
 
-    const forecastItems: ForecastItem[] = [];
+    const forecastItems = [];
     const now = new Date();
     for (let i = 0; i < 40; i++) {
       const forecastTime = new Date(now.getTime() + i * 3 * 60 * 60 * 1000);
 
-      const item: ForecastItem = {
+      const item = {
         dt: Math.floor(forecastTime.getTime() / 1000),
         main: {
           temp: 22 + Math.random() * 10,
