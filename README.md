@@ -98,40 +98,6 @@ npm run seed
 yarn seed
 ```
 
-This will create:
-- Two test users
-- Three sample locations
-
-## API Documentation
-
-The API documentation is available at http://localhost:3000/api when the server is running.
-
-## Testing
-
-Run unit tests:
-
-```bash
-npm run test
-# or
-yarn test
-```
-
-Run end-to-end tests:
-
-```bash
-npm run test:e2e
-# or
-yarn test:e2e
-```
-
-Run test coverage:
-
-```bash
-npm run test:cov
-# or
-yarn test:cov
-```
-
 ## Project Structure
 
 ```
@@ -188,17 +154,6 @@ docker-compose up -d
 ```
 
 This will start:
-- The NestJS API on port 9000
+- The NestJS API on port 3000
 - MongoDB on port 27017
 
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin feature/my-new-feature`
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
