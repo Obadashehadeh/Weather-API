@@ -1,11 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { ValidationPipe, ValidationError, BadRequestException } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpExceptionFilter, AllExceptionsFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
-  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
@@ -25,6 +24,16 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
+      exceptionFactory: (validationErrors: ValidationError[] = []) => {
+        const errors = validationErrors.map(error => ({
+          property: error.property,
+          constraints: error.constraints,
+        }));
+        return new BadRequestException({
+          message: 'Validation failed',
+          errors: errors,
+        });
+      },
     }),
   );
 
@@ -42,8 +51,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const port = process.env.PORT || 9000;
+  const port = process.env.PORT || 3000;
   await app.listen(port);
-  logger.log(`Application is running on: ${await app.getUrl()}`);
+  console.log(`Application is running on: http://localhost:${port}`);
 }
 bootstrap();

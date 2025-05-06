@@ -6,7 +6,6 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateLocationDto } from './dto/create-location.dto';
-import { UpdateLocationDto } from './dto/update-location.dto';
 import { Location, LocationDocument } from './schemas/location.schema';
 
 @Injectable()
@@ -47,27 +46,9 @@ export class LocationsService {
     return location;
   }
 
-  async update(
-    id: string,
-    updateLocationDto: UpdateLocationDto,
-    userId: string,
-  ): Promise<Location> {
+  async remove(id: string, userId: string): Promise<{ message: string }> {
     await this.findOneByUser(id, userId);
-
-    const updatedLocation = await this.locationModel
-      .findByIdAndUpdate(id, updateLocationDto, { new: true })
-      .exec();
-
-    if (!updatedLocation) {
-      throw new NotFoundException(`Location with ID ${id} not found`);
-    }
-
-    return updatedLocation as unknown as Location;
-  }
-
-  async remove(id: string, userId: string): Promise<void> {
-    const location = await this.findOneByUser(id, userId);
-
     await this.locationModel.findByIdAndDelete(id).exec();
+    return { message: 'Location deleted successfully' };
   }
 }
