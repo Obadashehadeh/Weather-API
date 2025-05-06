@@ -1,98 +1,204 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Weather Dashboard Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A robust NestJS API for the Weather Dashboard application.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- **Weather Data API**: Fetch current weather and forecasts
+- **Location Management**: Save and organize favorite locations
+- **User Authentication**: Register, login, and secure access to resources
+- **MongoDB Integration**: Persistent data storage
+- **API Documentation**: Swagger documentation for easy integration
+- **JWT Authentication**: Token-based security
+- **Error Handling**: Comprehensive error handling
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech Stack
 
-## Project setup
+- **NestJS**: Progressive Node.js framework
+- **TypeScript**: Type-safe JavaScript
+- **MongoDB**: NoSQL database
+- **Mongoose**: MongoDB object modeling
+- **Passport**: Authentication middleware
+- **JWT**: Token-based authentication
+- **Axios**: HTTP client for external API calls
+- **Swagger**: API documentation
+- **Jest**: Testing framework
 
-```bash
-$ npm install
-```
+## Prerequisites
 
-## Compile and run the project
+- Node.js 14.x or higher
+- npm or yarn
+- MongoDB
 
-```bash
-# development
-$ npm run start
+## Installation
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
+1. Clone the repository:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone https://github.com/your-username/weather-dashboard-backend.git
+cd weather-dashboard-backend
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+2. Install the dependencies:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm install
+# or
+yarn install
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+3. Create a `.env` file in the root directory with the following content:
 
-## Resources
+```
+PORT=3000
+MONGODB_URI=mongodb://localhost:27017/weather-dashboard
+JWT_SECRET=your_jwt_secret_key
+WEATHER_API_KEY=your_weatherapi_com_key
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+You'll need to get an API key from [WeatherAPI.com](https://www.weatherapi.com) to use the weather data features.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Development
 
-## Support
+Start the development server:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm run start:dev
+# or
+yarn start:dev
+```
 
-## Stay in touch
+The API will be available at http://localhost:3000.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Building for Production
+
+Build the application for production:
+
+```bash
+npm run build
+# or
+yarn build
+```
+
+Run the production build:
+
+```bash
+npm run start:prod
+# or
+yarn start:prod
+```
+
+## Database Seeding
+
+Seed the database with initial data:
+
+```bash
+npm run seed
+# or
+yarn seed
+```
+
+This will create:
+- Two test users
+- Three sample locations
+
+## API Documentation
+
+The API documentation is available at http://localhost:3000/api when the server is running.
+
+## Testing
+
+Run unit tests:
+
+```bash
+npm run test
+# or
+yarn test
+```
+
+Run end-to-end tests:
+
+```bash
+npm run test:e2e
+# or
+yarn test:e2e
+```
+
+Run test coverage:
+
+```bash
+npm run test:cov
+# or
+yarn test:cov
+```
+
+## Project Structure
+
+```
+src/
+  ├── app.module.ts              # Main application module
+  ├── main.ts                    # Application entry point
+  ├── auth/                      # Authentication module
+  │   ├── auth.controller.ts     # Auth endpoints
+  │   ├── auth.service.ts        # Auth business logic
+  │   ├── jwt.strategy.ts        # JWT authentication strategy
+  │   └── dto/                   # Data transfer objects
+  ├── users/                     # Users module
+  │   ├── users.controller.ts    # User endpoints
+  │   ├── users.service.ts       # User business logic
+  │   └── schemas/               # Mongoose schemas
+  ├── weather/                   # Weather module
+  │   ├── weather.controller.ts  # Weather endpoints
+  │   ├── weather.service.ts     # Weather business logic
+  │   └── dto/                   # Data transfer objects
+  ├── locations/                 # Locations module
+  │   ├── locations.controller.ts # Location endpoints
+  │   ├── locations.service.ts   # Location business logic
+  │   └── schemas/               # Mongoose schemas
+  └── common/                    # Shared resources
+      └── filters/               # Exception filters
+```
+
+## API Endpoints
+
+### Authentication
+- `POST /auth/register`: Register a new user
+- `POST /auth/login`: Login a user and get a JWT token
+
+### Weather
+- `GET /weather`: Get current weather for a location
+- `GET /weather/forecast`: Get weather forecast for a location
+
+### Locations
+- `GET /locations`: Get all saved locations for the current user
+- `POST /locations`: Save a location for the current user
+- `DELETE /locations/:id`: Delete a saved location
+
+### Users
+- `GET /users/:id`: Get user by ID (authenticated)
+
+## Docker Support
+
+The application includes Docker support for easy deployment.
+
+Build and run with Docker Compose:
+
+```bash
+docker-compose up -d
+```
+
+This will start:
+- The NestJS API on port 9000
+- MongoDB on port 27017
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/my-new-feature`
+3. Commit your changes: `git commit -am 'Add some feature'`
+4. Push to the branch: `git push origin feature/my-new-feature`
+5. Submit a pull request
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is licensed under the MIT License - see the LICENSE file for details.
